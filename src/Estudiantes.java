@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
@@ -16,6 +15,8 @@ public class Estudiantes extends JFrame {
     private JButton consultarBtn;
     private JList Lista;
     private JTextField CarreratxtField;
+    private JButton ModificarBtn;
+    private JButton BorrarBtn;
     Connection con;
     PreparedStatement ps;
     DefaultListModel mod = new DefaultListModel();
@@ -43,6 +44,19 @@ public class Estudiantes extends JFrame {
                 }
             }
         });
+        ModificarBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        BorrarBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
     }
 
     public void listar() throws SQLException {
@@ -58,24 +72,33 @@ public class Estudiantes extends JFrame {
 
     public void insertar() throws SQLException {
         conectar();
-        ps = con.prepareStatement("INSERT INTO estudiante VALUES (?,?,?,?,?,?)");
-        ps.setInt(1, Integer.parseInt(IdtxtField.getText()));
-        ps.setString(2, NombretxtField.getText());
-        ps.setString(3, ApellidotxtField.getText());
-        ps.setInt(4, Integer.parseInt(EdadtxtField.getText()));
-        ps.setString(5, TelefonotxtField.getText());
-        ps.setString(6, CarreratxtField.getText());
-        if (ps.executeUpdate() > 0) {
-            Lista.setModel(mod);
-            mod.removeAllElements();
-            mod.addElement("! Insercion Exitosa");
-            IdtxtField.setText(" ");
-            NombretxtField.setText(" ");
-            ApellidotxtField.setText(" ");
-            EdadtxtField.setText(" ");
-            TelefonotxtField.setText(" ");
-            CarreratxtField.setText(" ");
+        try {
+            int id = Integer.parseInt(IdtxtField.getText());
+            int edad = Integer.parseInt(EdadtxtField.getText());
+
+            ps = con.prepareStatement("INSERT INTO estudiante VALUES (?,?,?,?,?,?)");
+            ps.setInt(1, id);
+            ps.setString(2, NombretxtField.getText());
+            ps.setString(3, ApellidotxtField.getText());
+            ps.setInt(4, edad);
+            ps.setString(5, TelefonotxtField.getText());
+            ps.setString(6, CarreratxtField.getText());
+
+            if (ps.executeUpdate() > 0) {
+                Lista.setModel(mod);
+                mod.removeAllElements();
+                mod.addElement("! Inserción Exitosa");
+                IdtxtField.setText("");
+                NombretxtField.setText("");
+                ApellidotxtField.setText("");
+                EdadtxtField.setText("");
+                TelefonotxtField.setText("");
+                CarreratxtField.setText("");
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Error: Por favor, ingresa un número válido para ID y Edad.", "Error de Entrada", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 
     public static void main(String[] args) {
@@ -90,10 +113,33 @@ public class Estudiantes extends JFrame {
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/learning", "root", "250402");
             System.out.println("Conectado");
+            JOptionPane.showMessageDialog(this, " Realizando Operacion", "Acceso a la Base de datos", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
     }
+
+    public void cerrarConexion() {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.close();
+                JOptionPane.showMessageDialog(this, "Conexión cerrada", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public void dispose() {
+        super.dispose();
+        try {
+            cerrarConexion();
+            JOptionPane.showMessageDialog(this, "Conexión cerrada", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(this, "Error al cerrar la conexión: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 
 }
