@@ -66,8 +66,9 @@ public class Estudiantes extends JFrame {
         r = st.executeQuery("SELECT id,nombre,apellido,edad,telefono,carrera FROM estudiante");
         mod.removeAllElements();
         while (r.next()) {
-            mod.addElement(r.getString(1) + " " + r.getString(2) + " " + r.getString(3));
+            mod.addElement(r.getString(1) + " " + r.getString(2) + " " + r.getString(3)+ " " +r.getString(4)+ " " +r.getString(5)+ " " +r.getString(6));
         }
+
     }
 
     public void insertar() throws SQLException {
@@ -100,6 +101,7 @@ public class Estudiantes extends JFrame {
         }
 
     }
+
 
     public static void main(String[] args) {
         Estudiantes f = new Estudiantes();
