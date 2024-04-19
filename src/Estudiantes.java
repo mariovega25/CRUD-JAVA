@@ -17,6 +17,7 @@ public class Estudiantes extends JFrame {
     private JTextField CarreratxtField;
     private JButton ModificarBtn;
     private JButton BorrarBtn;
+    private JButton CerrarConexionBtn;
     Connection con;
     PreparedStatement ps;
     DefaultListModel mod = new DefaultListModel();
@@ -48,6 +49,34 @@ public class Estudiantes extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                int selectedIndex = Lista.getSelectedIndex();
+                if (selectedIndex != -1) { // Se ha seleccionado un elemento en la lista
+                    try {
+                        // Obtener los datos del estudiante seleccionado
+                        String[] datos = Lista.getModel().getElementAt(selectedIndex).toString().split(" ");
+                        int id = Integer.parseInt(datos[0]);
+                        String nombre = datos[1];
+                        String apellido = datos[2];
+                        int edad = Integer.parseInt(datos[3]);
+                        String telefono = datos[4];
+                        String carrera = datos[5];
+                        modificar();
+                        // Actualizar los campos de texto con los datos del estudiante seleccionado
+                        IdtxtField.setText(Integer.toString(id));
+                        NombretxtField.setText(nombre);
+                        ApellidotxtField.setText(apellido);
+                        EdadtxtField.setText(Integer.toString(edad));
+                        TelefonotxtField.setText(telefono);
+                        CarreratxtField.setText(carrera);
+
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(Estudiantes.this, "Error al obtener los datos del estudiante", "Error", JOptionPane.ERROR_MESSAGE);
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(Estudiantes.this, "Por favor, seleccione un estudiante de la lista", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         BorrarBtn.addActionListener(new ActionListener() {
@@ -57,6 +86,12 @@ public class Estudiantes extends JFrame {
             }
         });
 
+        CerrarConexionBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cerrarConexion();
+            }
+        });
     }
 
     public void listar() throws SQLException {
@@ -100,6 +135,31 @@ public class Estudiantes extends JFrame {
             JOptionPane.showMessageDialog(this, "Error: Por favor, ingresa un número válido para ID y Edad.", "Error de Entrada", JOptionPane.ERROR_MESSAGE);
         }
 
+    }
+
+    public void modificar() throws SQLException {
+        conectar();
+        try {
+            int id = Integer.parseInt(IdtxtField.getText());
+            int edad = Integer.parseInt(EdadtxtField.getText());
+
+            ps = con.prepareStatement("UPDATE estudiante SET nombre = ?, apellido = ?, edad = ?, telefono = ?, carrera = ? WHERE id = ?");
+            ps.setString(1, NombretxtField.getText());
+            ps.setString(2, ApellidotxtField.getText());
+            ps.setInt(3, edad);
+            ps.setString(4, TelefonotxtField.getText());
+            ps.setString(5, CarreratxtField.getText());
+            ps.setInt(6, id);
+
+            if (ps.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(this, "Registro modificado exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                listar(); // Actualizar la lista después de modificar el registro
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró ningún registro con el ID proporcionado", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Error: Por favor, ingresa un número válido para la Edad.", "Error de Entrada", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
 
