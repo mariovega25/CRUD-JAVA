@@ -82,7 +82,27 @@ public class Estudiantes extends JFrame {
         BorrarBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int selectedIndex = Lista.getSelectedIndex();
+                if (selectedIndex != -1) { // Se ha seleccionado un elemento en la lista
+                    try {
+                        String[] datos = Lista.getModel().getElementAt(selectedIndex).toString().split(" ");
+                        int id = Integer.parseInt(datos[0]);
 
+                        conectar();
+                        ps = con.prepareStatement("DELETE FROM estudiante WHERE id = ?");
+                        ps.setInt(1, id);
+                        if (ps.executeUpdate() > 0) {
+                            JOptionPane.showMessageDialog(Estudiantes.this, "Registro eliminado exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                            listar(); // Actualizar la lista después de eliminar el registro
+                        } else {
+                            JOptionPane.showMessageDialog(Estudiantes.this, "No se encontró ningún registro con el ID proporcionado", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (NumberFormatException | SQLException ex) {
+                        JOptionPane.showMessageDialog(Estudiantes.this, "Error al eliminar el registro", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(Estudiantes.this, "Por favor, seleccione un estudiante de la lista", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
